@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import './App.css';
 
-// To code splitting -> Page2 and Page3 are not imported manually on here
+// To code splitting (Part 2) -> Page2 and Page3 are not imported manually on here
 import Page1 from './components/Page1'
 // import Page2 from './components/Page2'
 // import Page3 from './components/Page3'
 
-import AsyncComponent from './components/AsyncComponent'
+// Cleaner Code Splitting (Part 3)
+// import AsyncComponent from './components/AsyncComponent'
+
+// implement React.lazy (Part 4)
+const Page2Lazy = React.lazy( () => import('./components/Page2') )
+const Page3Lazy = React.lazy( () => import('./components/Page3') )
 
 class App extends React.Component {
   constructor() {
@@ -59,23 +64,40 @@ class App extends React.Component {
     //   // this.state.component = Page2.default || Page3.default
     // }
 
-    // Splitting 2nd way
+    // Splitting 2nd way (Part 3)
+    // if (this.state.route === 'page1') {
+    //   return <Page1 onRouteChange={this.onRouteChange} />
+    // }
+    // if (this.state.route === 'page2') {
+    //   const AsyncPage2 = AsyncComponent( () => import('./components/Page2') )
+    //   console.log(AsyncPage2) // class AsyncComponent extends ...
+    //   return <AsyncPage2 onRouteChange={this.onRouteChange} />
+    // }
+    // if (this.state.route === 'page3') {
+    //   const AsyncPage3 = AsyncComponent( () => import('./components/Page3') )
+    //   return <AsyncPage3 onRouteChange={this.onRouteChange} />
+    // }
+
+    // React.lazy method (Part 4)
     if (this.state.route === 'page1') {
       return <Page1 onRouteChange={this.onRouteChange} />
     }
-
     if (this.state.route === 'page2') {
-      const AsyncPage2 = AsyncComponent( () => import('./components/Page2') )
-      console.log(AsyncPage2) // class AsyncComponent extends ...
-      return <AsyncPage2 onRouteChange={this.onRouteChange} />
+      return (
+        <Suspense fallback={<h1> Page 2 | Loading . . . </h1>}>
+          <Page2Lazy onRouteChange={this.onRouteChange} />\
+        </Suspense>
+      )
     }
-
     if (this.state.route === 'page3') {
-      const AsyncPage3 = AsyncComponent( () => import('./components/Page3') )
-      return <AsyncPage3 onRouteChange={this.onRouteChange} />
+      return (
+        <Suspense fallback={<h1> Page 3 | Loading . . . </h1>}>
+          <Page3Lazy onRouteChange={this.onRouteChange} />\
+        </Suspense>
+      )
     }
-
   };
+
 }
 
 export default App;
